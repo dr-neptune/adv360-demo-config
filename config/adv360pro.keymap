@@ -17,7 +17,62 @@
 #define MOD 4
 #define MS 5
 
+#define MOD_MORPH_C(NAME, KEY, MOD_KEY) \
+  mm##NAME: mm##NAME { \
+    compatible = "zmk,behavior-mod-morph"; \
+    label = #NAME; \
+    #binding-cells = <0>; \
+    bindings = <&kp KEY>, <&kp MOD_KEY>; \
+    mods = <(MOD_LCTL|MOD_RCTL)>; \
+  };
+
+#define MOD_MORPH_S(NAME, KEY, MOD_KEY) \
+  mm##NAME: mm##NAME { \
+    compatible = "zmk,behavior-mod-morph"; \
+    label = #NAME; \
+    #binding-cells = <0>; \
+    bindings = <&kp KEY>, <&kp MOD_KEY>; \
+    mods = <(MOD_LSFT|MOD_RSFT)>; \
+  };
+
+
 / {
+      behaviors {
+      #include "macros.dtsi"
+
+      ht: hold_toggle {
+	  compatible = "zmk,behavior-hold-tap";
+	  label = "HOLD_TOGGLE";
+          #binding-cells = <2>;
+	  tapping-term-ms = <200>;
+	  quick_tap_ms = <175>;
+	  flavor = "tap-preferred";
+	  bindings = <&mo>, <&kp>;
+	};
+
+        MOD_MORPH_S(ctrlbspc, BSPC, LC(BSPC))
+	MOD_MORPH_S(ctrlalt, RCTL, LALT)
+	MOD_MORPH_C(equal, D, EQUAL)
+	MOD_MORPH_C(under, F, UNDERSCORE)
+	MOD_MORPH_C(minus, V, MINUS)
+	MOD_MORPH_C(sqt, J, SQT)
+	MOD_MORPH_C(lpar, K, LPAR)
+	MOD_MORPH_C(dqt, M, DQT)
+	MOD_MORPH_C(lbkt, SEMI, LBKT)
+	MOD_MORPH_C(lbrc, FSLH, LBRC)
+	MOD_MORPH_C(altlt, COMMA, LA(LT))
+	MOD_MORPH_C(altgt, DOT, LA(GT))
+	MOD_MORPH_C(hctz, H, LC(Z))
+
+    td0: tap_dance_0 {
+	compatible = "zmk,behavior-tap-dance";
+	label = "TAP_DANCE_0";
+        #binding-cells = <0>;
+	tapping-term-ms = <200>;
+	bindings = <&kp LSHFT>, <&kp LC(SPACE)>;
+      };
+    };
+
     /* remove unused keys from layout and move thumb cluster to bottom */
     chosen {
         zmk,matrix_transform = &urobs_transform;
@@ -28,14 +83,14 @@
 
         base_layer {
             bindings = <
-                &kp EQUAL &kp N1    &kp N2    &kp N3    &kp N4    &kp N5    &tog KEYPAD    &mo MOD   &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp MINUS
+                &kp EQUAL &kp N1    &kp N2    &kp N3    &kp N4    &kp N5    &tog KEYPAD    &mo MOD   &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp PSCRN
                 &kp TAB   &kp Q     &kp W     &kp E     &kp R     &kp T     &to QWERTY     &tog MS   &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSLH
-                &kp ESC   &kp A     &kp S     &kp D     &kp F     &kp G     &to COLEMAK    &none     &kp H     &kp J     &kp K     &kp L     &kp SEMI  &kp SQT
-                &kp LSHFT &kp Z     &kp X     &kp C     &kp V     &kp B                              &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp RSHFT
-                &mo FN    &kp GRAVE &kp CAPS  &kp LEFT  &kp RIGHT                                              &kp UP    &kp DOWN  &kp LBKT  &kp RBKT  &mo FN
-                                                                  &kp LCTRL &kp LALT       &kp LGUI  &kp RCTRL
-                                                        &kp BSPC  &kp DEL   &kp HOME       &kp PG_UP &kp ENTER &kp SPACE
-                                                                            &kp END        &kp PG_DN
+                &kp ESC   &kp A     &kp S     &mmequal  &mmunder  &kp G     &to COLEMAK    &none     &mmhctz   &mmsqt    &mmlpar   &kp L     &mmlbkt   &kp SQT
+                &kp LSHFT &kp Z     &kp X     &kp C     &mmminus  &kp B                              &kp N     &mmdqt    &mmaltlt  &mmaltgt  &mmlbrc   &kp DEL
+                &mo FN    &kp GRAVE &kp PLUS  &kp LEFT  &kp RIGHT                                              &kp UP    &kp DOWN  &kp LBKT  &kp RBKT  &mo FN
+                                                                  &kp TAB &kp LCTRL       &kp LGUI  &kp RALT
+                                                        &td0  &kp ENTER   &kp HOME        &kp PG_UP &mmctrlalt &ht MS SPACE
+                                                                           &kp DEL        &mmctrlbspc
             >;
         };
 
@@ -68,10 +123,10 @@
         fn {
             bindings = <
                 &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp F6    ___            ___       &kp F7    &kp F8    &kp F9    &kp F10   &kp F11   &kp F12
-                ___       ___       ___       ___       ___       ___       ___            ___       ___       ___       ___       ___       ___       ___
-                ___       ___       ___       ___       ___       ___       ___            ___       ___       ___       ___       ___       ___       ___
-                ___       ___       ___       ___       ___       ___                                ___       ___       ___       ___       ___       ___
-                ___       ___       ___       ___       ___                                                    ___       ___       ___       ___       ___
+	      &kp LC(TAB) &kp Q     &kp W     &kp E     &kp R     &kp T     ___            ___       &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSLH
+              &kp ESC     &kp A     &kp S     &kp LC(D) &kp LC(F) &kp G     ___            ___       &kp LC(H) &kp LC(J) &kp LC(K) &kp L     &kp LC(SEMI) &kp SQT
+              &kp LSHFT   &kp Z     &kp X     &kp C     &kp LC(V) &kp B     ___            ___       &kp N     &kp LC(M) &kp LC(COMMA) &kp LC(DOT)  &kp LC(FSLH) &kp RSHFT
+              &mo FN      &kp GRAVE &kp PLUS  &kp LEFT  &kp RIGHT                                              &kp UP    &kp DOWN  &kp LBKT  &kp RBKT  &mo FN
                                                                   ___       ___            ___       ___
                                                         ___       ___       ___            ___       ___       ___
                                                                             ___            ___
@@ -107,4 +162,3 @@
     };
 
 };
-
